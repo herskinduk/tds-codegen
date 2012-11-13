@@ -26,6 +26,8 @@
     <CodeGenFile>TdsT4CodeGeneratedFile.cs</CodeGenFile>
     <CodeGenTargetProject>SampleLibrary</CodeGenTargetProject>
     <BaseNamespace>BaseNamespace</BaseNamespace>
+    <BaseTransformFile>Herskind.Item.tt</BaseTransformFile>
+    <HeaderTransformFile>Herskind.Header.tt</HeaderTransformFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -624,7 +626,10 @@
   </ItemGroup>
   <ItemGroup>
     <CodeGenTemplate Include="Code Generation Templates\Helpers.tt" />
+    <CodeGenTemplate Include="Code Generation Templates\Herskind.Helpers.tt" />
     <CodeGenTemplate Include="Code Generation Templates\ItemPaths.tt" />
+    <CodeGenTemplate Include="Code Generation Templates\Herskind.Header.tt" />
+    <CodeGenTemplate Include="Code Generation Templates\Herskind.Item.tt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\HedgehogDevelopment\SitecoreProject\v9.0\HedgehogDevelopment.SitecoreProject.targets" />
 </Project>

@@ -1,0 +1,27 @@
+<#@ template language="C#" #>
+<#@ include file="Helpers.tt" #>
+<#@ include file="Herskind.Helpers.tt" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="HedgehogDevelopment.CodeGeneration.Extensions" #>
+<#@ import namespace="HedgehogDevelopment.SitecoreProject.VSIP.CodeGeneration.Models" #>
+<#@ parameter name="Model" type="HedgehogDevelopment.SitecoreProject.VSIP.CodeGeneration.Models.ProjectHeader" #>
+<#@ parameter name="DefaultNamespace" type="System.String" #>
+using System;
+using System.Collections.Generic;
+using Sitecore.Data.Items;
+using Herskind.Model.Helper;
+using Herskind.Model.Helper.FieldTypes;
+
+namespace <#= DefaultNamespace #>
+{
+	public static class FieldWrapperInterfaceMap
+	{
+		public static Dictionary<string, Type> Mappings = new Dictionary<string, Type>()
+		{
+<#  foreach(var fieldMapping in FieldMappings) { #>
+			{"<#= fieldMapping.Key #>", typeof(<#= fieldMapping.Value #>)},
+<# } #>
+		};
+	}
+}

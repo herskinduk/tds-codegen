@@ -1,0 +1,106 @@
+<#@ assembly name="System.Core" #>
+<#@ assembly name="HedgehogDevelopment.CodeGeneration.Extensions.dll" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="HedgehogDevelopment.CodeGeneration.Extensions" #>
+<#@ import namespace="HedgehogDevelopment.SitecoreProject.VSIP.CodeGeneration.Models" #>
+<#+	
+public Dictionary<string, string> FieldMappings = new Dictionary<string,string>()
+{
+	{"checkbox", "IBooleanFieldWrapper"},
+	{"image", "IImageFieldWrapper"},
+	{"date", "IDateFieldWrapper"},
+	{"datetime", "IDateFieldWrapper"},
+	{"checklist","IListFieldWrapper"},
+	{"treelist","IListFieldWrapper"},
+	{"treelistex","IListFieldWrapper"},
+	{"multilist","IListFieldWrapper"},
+	{"droplink","ILinkFieldWrapper"},
+	{"droptree","ILinkFieldWrapper"},
+	{"general link","ILinkFieldWrapper"},
+	{"single-line text","ITextFieldWrapper"},
+	{"multi-line text","ITextFieldWrapper"},
+	{"rich text","ITextFieldWrapper"},
+	{"","ITextFieldWrapper"}
+};
+
+public string GetFieldWrapperType(string typeName)
+{
+	if (FieldMappings.ContainsKey(typeName.ToLower()))
+    {
+		return FieldMappings[typeName.ToLower()];
+    }
+
+	return FieldMappings[""];
+}
+
+public string ClassName(string name)
+{
+    if (name.AsClassName() == name.AsInterfaceName())
+        return "Class" + name.AsClassName();
+
+    return name.AsClassName();
+}
+
+public string DataClassName(string name)
+{
+    return TitleCase(name) + "FieldData";
+}
+
+public string DataInterfaceName(string name)
+{
+    return "I" + TitleCase(name) + "FieldData";
+}
+
+public string DataPropertyName(string name)
+{
+    return TitleCase(name) + "Fields";
+}
+
+public string DataPrivateMemberName(string name)
+{
+    return "_m" + TitleCase(name) + "Fields";
+}
+
+public string InterfaceName(string name)
+{
+    return "I" + TitleCase(name);
+}
+
+public string TitleCase(string name)
+{
+    name = Regex.Replace(name, "([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))", "$1 ");
+    name = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(name);
+    name = Regex.Replace(name, @"[^a-zA-Z0-9]", String.Empty);
+    name = Regex.Replace(name, @"(^[0-9])", "Z$1");
+
+    return name;
+}
+
+public string RelativeNamespace(SitecoreTemplate template)
+{
+    var sb = new StringBuilder();
+    var pathList = template.Path.Split('/');
+
+    try
+    {
+        return string.Join(".", pathList.Take(pathList.Count() - 1).Skip(3).Select(p => TitleCase(p)));
+    }
+    catch
+    {
+    }
+
+
+    return "";
+}
+
+public string FullNamespace(SitecoreTemplate template)
+{
+    return DefaultNamespace + "." + RelativeNamespace(template);
+}
+
+#>

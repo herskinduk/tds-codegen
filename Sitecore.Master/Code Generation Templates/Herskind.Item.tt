@@ -1,0 +1,61 @@
+<#@ template language="C#" debug="true" #>
+<#@ assembly name="HedgehogDevelopment.CodeGeneration.Extensions.dll" #>
+<#@ include file="Helpers.tt" #>
+<#@ include file="Herskind.Helpers.tt" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="HedgehogDevelopment.CodeGeneration.Extensions" #>
+<#@ import namespace="HedgehogDevelopment.SitecoreProject.VSIP.CodeGeneration.Models" #>
+<#@ parameter name="Model" type="HedgehogDevelopment.SitecoreProject.VSIP.CodeGeneration.Models.SitecoreItem" #>
+<#@ parameter name="DefaultNamespace" type="System.String" #>
+<#
+    // Only act on Templates
+    SitecoreTemplate template = Model as SitecoreTemplate;
+    if (template == null)
+    {
+        return "";
+    }
+#>
+#region <#= template.Name #> (<#= RelativeNamespace(template) #>)
+namespace <#= FullNamespace(template) #>
+{
+    /// <summary>
+    /// <#= template.Name #>
+    /// <para><#= template.SitecoreFields.GetValue("__Short description")#></para>
+    /// <para>Path: <#= template.Path #></para>	
+    /// <para>ID: <#= template.ID.ToString() #></para>	
+    /// </summary>
+    public partial interface <#= template.Name.AsInterfaceName() #> : IItemWrapper <# foreach (SitecoreTemplate baseTemplate in template.BaseTemplates){#>, <#= RelativeNamespace(baseTemplate) #>.<#= baseTemplate.Name.AsInterfaceName() #><# } #>
+    {
+<# foreach(SitecoreField field in GetFieldsForTemplate(template, false).GroupBy(f => f.Name.AsPropertyName()).Select(g => g.First())) { #>
+        /// <summary>
+        /// <#= field.Name #>
+        /// <para><#= template.SitecoreFields.GetValue("__Short description")#></para>
+        /// </summary>
+        <#= GetFieldWrapperType(field.Type) #> <#= field.Name.AsPropertyName() #> { get; }
+<# } #>
+    }
+
+	[TemplateMapping("<#= template.ID.ToString("b").ToUpper() #>", typeof(<#= template.Name.AsInterfaceName() #>))]
+    public class <#= ClassName(template.Name) #> : BaseItemWrapper, <#= template.Name.AsInterfaceName() #>
+    {
+        private Item _innerItem = null;
+
+        public <#= ClassName(template.Name) #>()
+        {
+        }
+
+<# foreach(SitecoreField field in GetFieldsForTemplate(template, true).GroupBy(f => f.Name.AsPropertyName()).Select(g => g.First())) { #>
+        public <#= GetFieldWrapperType(field.Type) #> <#= field.Name.AsPropertyName().AsValidWord() #>
+        {
+            get
+            {
+                return (<#= GetFieldWrapperType(field.Type) #>)GetField("<#= field.ID #>"); 
+            } 
+        } 
+<# } #>
+    }
+}
+
+#endregion
+
